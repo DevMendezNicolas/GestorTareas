@@ -95,7 +95,19 @@ namespace GestorTareas.Services
                 Console.WriteLine("No hay tareas para mostrar.");
                 return;
             }
-            List<Tarea> tareasOrdenadas = tareas.OrderByDescending(t => t.EstadoPrioridad).ToList();
+            
+            List<Tarea> tareasOrdenadas = tareas
+                .Where(t => !t.Eliminada && !t.Completada)
+                .OrderByDescending(t => t.EstadoPrioridad)
+                .ThenBy(t => t.FechaCreacion)
+                .ToList();
+
+            if (tareasOrdenadas == null || tareasOrdenadas.Count == 0)
+            {
+                Console.WriteLine("No hay tareas pendientes para mostrar.");
+                return;
+            }
+
             Console.WriteLine("Lista de Tareas ordenadas por prioridad:");
             foreach (var tarea in tareasOrdenadas)
             {
@@ -168,7 +180,7 @@ namespace GestorTareas.Services
                 return null;
             }
 
-            if() (tarea.Eliminada)
+            if(tarea.Eliminada)
             {
                 Console.WriteLine($"La tarea con ID: {id} está eliminada.");
                 return null;
@@ -184,25 +196,26 @@ namespace GestorTareas.Services
                 Console.WriteLine("El ID de la tarea debe ser un número mayor a 1000.");
                 return false;
             }
-            Tarea tarea = tareas.FirstOrDefault(t => t.Id == id);
-            if (tarea == null)
+            //Tarea tarea = tareas.FirstOrDefault(t => t.Id == id);
+
+            if (tareas.FirstOrDefault(t => t.Id == id) == null)
             {
                 Console.WriteLine($"No se encontró la tarea eliminada con ID: {id}");
                 return false;
             }
-            if (!tarea.Eliminada)
+            if (!tareas.FirstOrDefault(t => t.Id == id).Eliminada)
             {
                 Console.WriteLine("La tarea no está eliminada, no es necesario restaurarla.");
                 return false;
             }
 
-            tarea.restaurarTarea();
+            tareas.FirstOrDefault(t => t.Id == id).restaurarTarea();
             ArchivoTareas.Guardar(tareas);
             Console.WriteLine($"Tarea con ID: {id} restaurada.");
             return true;
         }
         // Método para modificar una tarea existente
-        public bool ModificarTarea(int id, string nuevaDescripcion, Prioridad nuevaPrioridad)
+        public bool ModificarTarea(int id)
         {
             Tarea tarea = BuscarTareaPorId(id);
             if (tarea == null)
@@ -210,11 +223,30 @@ namespace GestorTareas.Services
                 Console.WriteLine($"No se encontró la tarea con ID: {id}");
                 return false;
             }
+            if (tarea.Eliminada)
+            {
+                Console.WriteLine($"La tarea con ID: {id} está eliminada. No se puede modificar.");
+                return false;
+            }
+            Console.WriteLine($"Tarea actual: {tarea.ToString()}");
+            Console.Write("Ingrese la nueva descripción de la tarea: ");
+            string nuevaDescripcion = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(nuevaDescripcion))
+            {
+                Console.WriteLine("La descripción no puede estar vacía.");
+                return false;
+            }
+            Console.Write("Ingrese la nueva prioridad de la tarea (baja, media, alta): ");
+            Prioridad nuevaPrioridad;
+            while (!Enum.TryParse(Console.ReadLine(), true, out nuevaPrioridad) || !Enum.IsDefined(typeof(Prioridad), nuevaPrioridad))
+            {
+                Console.WriteLine("Prioridad no válida. Debe ser baja, media o alta.");
+                Console.Write("Ingrese la nueva prioridad de la tarea (baja, media, alta): ");
+            }
 
             tarea.actualizarDescripcion(nuevaDescripcion);
             tarea.actualizarPrioridad(nuevaPrioridad);
             ArchivoTareas.Guardar(tareas);
-            Console.WriteLine($"Tarea con ID: {id} modificada correctamente.");
             return true;
         }
     }

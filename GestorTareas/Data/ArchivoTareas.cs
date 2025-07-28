@@ -23,7 +23,7 @@ namespace GestorTareas.Data
             Directory.CreateDirectory(Path.GetDirectoryName(rutaArchivo));
             File.WriteAllText(rutaArchivo, json);
         }
-        // Métodos para cargar las tareas, eliminadas y completadas desde archivos JSON
+        // Métodos para cargar las tareas desde archivos JSON
         public static List<Tarea> Cargar()
         {
             if (!File.Exists(rutaArchivo))
