@@ -1,128 +1,103 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GestorTareas.Models;
+using System.Threading;
+using System.Xml.Schema;
 using GestorTareas.Data;
+using GestorTareas.Models;
+using GestorTareas.Utils;
 
 namespace GestorTareas.Services
 {
     public class GestorDeTareas
     {
-        // Atributos privados para almacenar las tareas, eliminadas y completadas
+        // Atributos privados para almacenar las tareas
         private List<Tarea> tareas;
-        private List<Tarea> tareasEliminadas;
-        private List<Tarea> tareasCompletadas;
-
-        // Constructor que inicializa las listas de tareas, eliminadas y completadas
+        // Constructor que inicializa las listas de tareas
         public GestorDeTareas()
         {
             this.tareas = ArchivoTareas.Cargar();
-            this.tareasEliminadas = ArchivoTareas.CargarEliminadas();
-            this.tareasCompletadas = ArchivoTareas.CargarCompletadas();
         }
         // Obetner todas las tareas, las eliminadas y las completadas
         public List<Tarea> ObtenerTareas()
         {
             return tareas;
         }
-        public List<Tarea> ObtenerTareasEliminadas()
-        {
-            return tareasEliminadas;
-        }
-        public List<Tarea> ObtenerTareasCompletadas()
-        {
-            return tareasCompletadas;
-        }
-
         // Método para agregar una nueva tarea
-        public bool AgregarTarea(string descripcion, bool estado)
+        public bool AgregarTarea(string descripcion, Prioridad prioridad)
         {
             if (string.IsNullOrEmpty(descripcion))
             {
                 Console.WriteLine("La descripción de la tarea no puede estar vacía.");
                 return false;
             }
-            Tarea tarea = new Tarea(descripcion, estado);
+            Tarea tarea = new Tarea(descripcion, prioridad);
             tareas.Add(tarea);
             ArchivoTareas.Guardar(tareas);
-            if (estado)
-            {
-                tareasCompletadas.Add(tarea);
-                ArchivoTareas.GuardarCompletadas(tareasCompletadas);
-            }
-
-            Console.WriteLine($"Tarea agregada con exito: {descripcion}");
             return true;
         }
         // Métedos para listar las tareas, completadas y eliminadas
-        public void ListarTareas()
+        public void ListarTareas(List<Tarea> tareas, int tipoTarea)
         {
-            List<Tarea> Tareas = ObtenerTareas();
-            if (Tareas.Count == 0 || Tareas == null)
+            if (tareas == null || tareas.Count == 0)
             {
                 Console.WriteLine("No hay tareas para mostrar.");
                 return;
             }
-            Console.WriteLine("Lista de Tareas:");
-            foreach (var tarea in Tareas)
+            // |0-> Pendientes |1-> Completadas |2-> Todas |3-> Eliminadas
+            if (tipoTarea < 0 || tipoTarea > 3)
             {
-                Console.WriteLine(tarea.ToString());
-            }
-            return;
-        }
-        public void ListarTareasCompletadas()
-        {
-            Console.WriteLine("Lista de Tareas Completadas:");
-            List<Tarea> TareasCompletadas = ObtenerTareasCompletadas();
-            if (TareasCompletadas == null || TareasCompletadas.Count == 0)
-            {
-                Console.WriteLine("No hay tareas completadas para mostrar.");
+                Console.WriteLine("Tipo de tarea no válido. Por favor, ingrese un número entre 0 y 3.");
                 return;
             }
-            if (TareasCompletadas.Count == 0)
+            List<Tarea> tareasFiltradas;
+            string titulo;
+
+            switch (tipoTarea)
             {
-                Console.WriteLine("No hay tareas completadas.");
-                return ;
+                case 0:
+                    titulo = "Lista de Tareas Pendientes:";
+                    tareasFiltradas = tareas.Where(t => !t.Completada).ToList();
+                    break;
+                case 1:
+                    titulo = "Lista de Tareas Completadas:";
+                    tareasFiltradas = tareas.Where(t => t.Completada).ToList();
+                    break;
+                case 2:
+                    titulo = "Lista de completa de Tareas:";
+                    tareasFiltradas = tareas.Where(t => !t.Eliminada).ToList();
+                    break;
+                case 3:
+                    titulo = "Lista de Tareas eliminadas:";
+                    tareasFiltradas = tareas.Where(t => t.Eliminada).ToList();
+                    break;
+                default:
+                    Console.WriteLine("Tipo de tarea no válido. Por favor, ingrese un número entre 0 y 3.");
+                    return;
+
             }
-            foreach (var tarea in TareasCompletadas)
+            if(tareasFiltradas == null || tareasFiltradas.Count == 0)
+            { 
+                Console.WriteLine("No hay tareas para mostrar.");
+                return;
+            }
+            Console.WriteLine(titulo);
+            foreach (var tarea in tareasFiltradas)
             {
                 Console.WriteLine(tarea.ToString());
             }
         }
-        public void ListarTareasEliminadas()
+        // Método listar por orden prioridad alta a baja
+        public void ListarTareasPorPrioridad()
         {
-            Console.WriteLine("Lista de Tareas Eliminadas:");
-            List<Tarea> TareasEliminadas = ObtenerTareasEliminadas();
-            if (TareasEliminadas == null || TareasEliminadas.Count == 0)
-            {
-                Console.WriteLine("No hay tareas eliminadas para mostrar.");
-                return ;
-            }
-
-            foreach (var tarea in TareasEliminadas)
-            {
-                Console.WriteLine(tarea.ToString());
-            }
-        }
-
-        // metodo para listar las tareas por estado
-        public void ListarTareasPorEstado(bool estado)
-        {
-            if (tareas.Count == 0)
+            if (tareas == null || tareas.Count == 0)
             {
                 Console.WriteLine("No hay tareas para mostrar.");
-                return ;
+                return;
             }
-            Console.WriteLine($"Lista de Tareas -> {(estado ? "Completadas" : "Pendientes")}:");
-            List<Tarea> TareasFiltatradas = tareas.Where(t => t.Completada == estado).ToList();
-
-            if (TareasFiltatradas.Count == 0)
-            {
-                Console.WriteLine("No hay tareas que coincidan con el estado especificado.");
-                return ;
-            }
-
-            foreach (var tarea in TareasFiltatradas)
+            List<Tarea> tareasOrdenadas = tareas.OrderByDescending(t => t.EstadoPrioridad).ToList();
+            Console.WriteLine("Lista de Tareas ordenadas por prioridad:");
+            foreach (var tarea in tareasOrdenadas)
             {
                 Console.WriteLine(tarea.ToString());
             }
@@ -147,13 +122,11 @@ namespace GestorTareas.Services
                 return false;
             }
 
-            tarea.Completada = true;
-            tareasCompletadas.Add(tarea);
-            ArchivoTareas.GuardarCompletadas(tareasCompletadas);
+            tarea.finalizarTarea();
+            ArchivoTareas.Guardar(tareas);
             Console.WriteLine($"Tarea con ID: {id} marcada como completada.");
             return true;
         }
-
         public bool EliminarTarea(int id)
         {
             if (id <= 1000)
@@ -168,13 +141,11 @@ namespace GestorTareas.Services
                 return false;
             }
 
-            tareas.Remove(tarea);
-            tareasEliminadas.Add(tarea);
-            ArchivoTareas.GuardarEliminadas(tareasEliminadas);
+            tarea.eliminarTarea();
+            ArchivoTareas.Guardar(tareas);
             Console.WriteLine($"Tarea con ID: {id} eliminada.");
             return true;
         }
-
         // Método para buscar una tarea por ID
         public Tarea BuscarTareaPorId(int id)
         {
@@ -196,9 +167,15 @@ namespace GestorTareas.Services
                 Console.WriteLine($"No se encontró la tarea con ID: {id}");
                 return null;
             }
+
+            if() (tarea.Eliminada)
+            {
+                Console.WriteLine($"La tarea con ID: {id} está eliminada.");
+                return null;
+            }
+            Console.WriteLine($"Tarea encontrada: {tarea.ToString()}");
             return tarea;
         }
-
         // Método para restaurar una tarea eliminada
         public bool RestaurarTarea(int id)
         {
@@ -207,28 +184,38 @@ namespace GestorTareas.Services
                 Console.WriteLine("El ID de la tarea debe ser un número mayor a 1000.");
                 return false;
             }
-            Tarea tarea = tareasEliminadas.FirstOrDefault(t => t.Id == id);
+            Tarea tarea = tareas.FirstOrDefault(t => t.Id == id);
             if (tarea == null)
             {
                 Console.WriteLine($"No se encontró la tarea eliminada con ID: {id}");
                 return false;
             }
-            
-            tareas.Add(tarea);
-            tareasEliminadas.Remove(tarea);
-            if(tarea.Completada)
+            if (!tarea.Eliminada)
             {
-                tareasCompletadas.Add(tarea);
-                ArchivoTareas.GuardarCompletadas(tareasCompletadas);
+                Console.WriteLine("La tarea no está eliminada, no es necesario restaurarla.");
+                return false;
             }
 
+            tarea.restaurarTarea();
             ArchivoTareas.Guardar(tareas);
-            ArchivoTareas.GuardarEliminadas(tareasEliminadas);
-
             Console.WriteLine($"Tarea con ID: {id} restaurada.");
             return true;
         }
+        // Método para modificar una tarea existente
+        public bool ModificarTarea(int id, string nuevaDescripcion, Prioridad nuevaPrioridad)
+        {
+            Tarea tarea = BuscarTareaPorId(id);
+            if (tarea == null)
+            {
+                Console.WriteLine($"No se encontró la tarea con ID: {id}");
+                return false;
+            }
 
-
+            tarea.actualizarDescripcion(nuevaDescripcion);
+            tarea.actualizarPrioridad(nuevaPrioridad);
+            ArchivoTareas.Guardar(tareas);
+            Console.WriteLine($"Tarea con ID: {id} modificada correctamente.");
+            return true;
+        }
     }
 }

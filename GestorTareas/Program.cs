@@ -9,6 +9,7 @@ using GestorTareas.Services;
 using System.Text.Json;
 using System.IO;
 using System.Threading;
+using GestorTareas.Utils;
 
 
 namespace GestorTareas
@@ -76,9 +77,18 @@ namespace GestorTareas
                             Console.WriteLine("Opción inválida. Por favor, ingrese 1 para completada o 0 para no completada.");
                             continue;
                         }
-
                         bool estado = (opt == 1 ? true : false);
-                        gestor.AgregarTarea(descripcion, estado);
+
+                        Console.WriteLine("Seleccione la prioridad de la tarea:");
+                        Console.WriteLine("1. Baja - 2. Media - 3. Alta");
+                        int prioridad;
+                        if (!int.TryParse(Console.ReadLine(), out prioridad) || prioridad < 1 || prioridad > 3)
+                        {
+                            Console.WriteLine("Prioridad inválida. Por favor, ingrese un número entre 1 y 3.");
+                            continue;
+                        }
+                        
+                        gestor.AgregarTarea(descripcion, estado, (Prioridad)prioridad);
                         break;
                     case 2:
                         Console.WriteLine("*===================================*");

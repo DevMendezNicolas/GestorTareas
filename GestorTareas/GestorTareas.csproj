@@ -79,6 +79,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\GestorTareas.cs" />
+    <Compile Include="Utils\Prioridad.cs" />
     <Compile Include="Utils\Validador.cs" />
   </ItemGroup>
   <ItemGroup>
