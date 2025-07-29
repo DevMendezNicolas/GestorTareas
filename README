@@ -1,0 +1,50 @@
+📝 Gestor de Tareas - Proyecto de Consola en C#
+Aplicación de consola desarrollada en C# para la gestión de tareas personales. Permite agregar, listar, buscar, modificar, eliminar, restaurar y marcar tareas como completadas, con soporte de persistencia de datos en formato JSON.
+
+🚀 Funcionalidades
+✅ Agregar nuevas tareas con prioridad (Baja, Media, Alta)
+📋 Listar tareas:
+Todas
+Completadas
+Pendientes
+Eliminadas
+Por prioridad
+🔎 Buscar tareas por ID
+🛠️ Modificar descripción o prioridad de una tarea existente
+❌ Eliminar o restaurar tareas
+✔️ Marcar tareas como completadas
+
+💾 Persistencia automática en archivo tareas.json
+
+🧱 Estructura del Proyecto
+Program.cs: Entrada principal, muestra el menú y gestiona la interacción con el usuario.
+Tarea.cs: Clase que representa una tarea con atributos como ID, descripción, prioridad, estado, fecha de creación.
+GestorDeTareas.cs: Lógica central de gestión: agregar, buscar, filtrar, eliminar y restaurar tareas.
+ArchivoTareas.cs: Maneja la lectura y escritura del archivo JSON para la persistencia de datos.
+
+💡 Tecnologías Utilizadas
+Lenguaje: C#
+Plataforma: .NET Console App
+Persistencia: JSON (System.Text.Json)
+
+📂 Archivos importantes
+pgsql
+Copiar
+Editar
+
+/ProyectoGestorTareas
+│
+├── Program.cs
+├── Tarea.cs
+├── GestorDeTareas.cs
+├── ArchivoTareas.cs
+└── tareas.json (generado automáticamente)
+
+🧪 Estado del Proyecto
+✅ Funcionalidades principales completas
+🔜 Documentación visual en desarrollo (diagramas de contexto y flujo de datos)
+🧠 Ideal como primer proyecto de portafolio para mostrar manejo de lógica, estructuras de control, programación orientada a objetos y persistencia
+
+📌 Objetivo
+Proyecto académico y personal para consolidar fundamentos de programación orientada a objetos y estructuras de datos, 
+pensado como primer paso para ingresar al mundo profesional como desarrollador backend con C# y .NET.
