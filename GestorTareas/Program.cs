@@ -166,7 +166,7 @@ namespace GestorTareas
                         Console.WriteLine("*===========================================*");
                         Console.WriteLine("*   Tarea encontrada:                       *");
                         Console.WriteLine("*===========================================*");
-                        tareaEncontrada.ToString();
+                        Console.WriteLine(tareaEncontrada.ToString());
 
 
                         break;
@@ -229,7 +229,7 @@ namespace GestorTareas
                         break;
                     case 11:
                         Console.WriteLine("*===========================================*");
-                        Console.WriteLine("*   Restaur tarea eliminada...              *");
+                        Console.WriteLine("*   Restaurar tarea eliminada...            *");
                         Console.WriteLine("*===========================================*");
                         Console.Write("Ingrese el ID de la tarea a restaurar: ");
                         int idRestaurar;
@@ -274,7 +274,7 @@ namespace GestorTareas
                     Console.ReadKey();
                 }
             }
-
+            ArchivoTareas.Guardar(gestor.ObtenerTareas());
         }
     }
 }

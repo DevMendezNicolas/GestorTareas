@@ -196,20 +196,20 @@ namespace GestorTareas.Services
                 Console.WriteLine("El ID de la tarea debe ser un número mayor a 1000.");
                 return false;
             }
-            //Tarea tarea = tareas.FirstOrDefault(t => t.Id == id);
+            Tarea tarea = tareas.FirstOrDefault(t => t.Id == id);
 
-            if (tareas.FirstOrDefault(t => t.Id == id) == null)
+            if (tarea == null)
             {
                 Console.WriteLine($"No se encontró la tarea eliminada con ID: {id}");
                 return false;
             }
-            if (!tareas.FirstOrDefault(t => t.Id == id).Eliminada)
+            if (!tarea.Eliminada)
             {
                 Console.WriteLine("La tarea no está eliminada, no es necesario restaurarla.");
                 return false;
             }
 
-            tareas.FirstOrDefault(t => t.Id == id).restaurarTarea();
+            tarea.restaurarTarea();
             ArchivoTareas.Guardar(tareas);
             Console.WriteLine($"Tarea con ID: {id} restaurada.");
             return true;
